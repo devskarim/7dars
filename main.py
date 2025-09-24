@@ -15,6 +15,11 @@ env.read_env()
 dp = Dispatcher()
 TOKEN = env.str("TOKEN")
 
+class Register(StatesGroup): 
+    name = State()
+    phone = State()
+    location = State()
+
 
 @dp.message(CommandStart())
 async def start_commit(message: Message):
@@ -48,12 +53,37 @@ async def start_commit(message: Message):
 async def lan_uz(message:Message): 
     name_kb =ReplyKeyboardMarkup(
         keyboard= [
-            [KeyboardButton(text="Register:")]
+            [KeyboardButton(text="Register")]
 				],resize_keyboard=True
 		)
     
     await message.answer(f"🔑 Kirish uchun ro‘yxatdan o‘ting.",reply_markup=name_kb)
 		
+
+
+
+@dp.message(F.text == "Register") 
+async def start_register(message:Message, state:FSMContext): 
+    await state.set_state(Register.name) 
+    await message.answer(f"Iltimos toliq ismningizni kiriting .", reply_markup=ReplyKeyboardRemove())
+
+
+
+
+@dp.message(Register.name) 
+async def get_name(message:Message, state:FSMContext):
+    await state.set_state(Register.phone)
+    name = message.text
+    await message.answer(f"{name} Telefon raqamingizni kiriting.",)
+
+
+
+@dp.message(Register.name)
+async def get_phone(message:Message, state:FSMContext): 
+    await state.set_state(Register.location)
+
+
+
 
 
 
